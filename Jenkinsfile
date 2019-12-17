@@ -1,6 +1,6 @@
 //定义一些变量/参数
-def git-auth-id = "b632ed00-fc81-43c8-a746-5aa0673b2658"
-def git-url = "git@192.168.66.100:itheima_group/tensquare_back.git"
+def git_auth_id = "b632ed00-fc81-43c8-a746-5aa0673b2658"
+def git_url = "git@192.168.66.100:itheima_group/tensquare_back.git"
 
 
 node {
