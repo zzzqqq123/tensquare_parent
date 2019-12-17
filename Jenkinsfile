@@ -79,7 +79,7 @@ node {
                 //遍历所有服务器列表
                 for(int j=0;j<selectedServers.length;j++){
                     //获取当前遍历的服务器名称
-                    def currentServerName = selectedServers[i]
+                    def currentServerName = selectedServers[j]
 
                     //加入的参数格式：--spring.profiles.active=eureka-server1
                     def activeProfile = "--spring.profiles.active="
