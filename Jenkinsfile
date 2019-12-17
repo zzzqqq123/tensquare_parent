@@ -14,6 +14,8 @@ def harbor_auth = "833d1a75-f3db-4aec-9cc4-75a77e423163"
 node {
    //获取当前选择的项目名称
    def selectedProjectNames = "${project_name}".split(",")
+   //获取当前选择的服务器列表
+   def selectedServers = "${publish_server}".split(",")
 
 
    stage('拉取代码') {
@@ -74,9 +76,25 @@ node {
                 }
 
 
-                //部署应用
-                //sshPublisher(publishers: [sshPublisherDesc(configName: 'master_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: "/opt/jenkins_shell/deploy.sh $harbor_url $harbor_project $project_name $tag $port", execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                //遍历所有目前的服务器列表
+                for(int j=0;j<selectedServers.length;j++){
 
+                    // 获取当前遍历的服务器名称
+                    def currentServer = selectedServers[i];
+
+                    //选择需要的读取的Eureka配置
+                    def activeProfile = "--spring.profiles.active=";
+
+                    //根据服务器的名称选择不同的配置
+                    if(currentServer=="master_server"){
+                       activeProfile = activeProfile+"eureka-server1"
+                    }else if(currentServer=="slave_server"){
+                       activeProfile = activeProfile+"eureka-server2"
+                    }
+
+                    //部署应用
+                    sshPublisher(publishers: [sshPublisherDesc(configName: 'master_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: "/opt/jenkins_shell/deployCluster.sh $harbor_url $harbor_project $project_name $tag $port $activeProfile", execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                }
         }
    }
 }
