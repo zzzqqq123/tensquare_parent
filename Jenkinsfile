@@ -45,29 +45,38 @@ node {
       sh "mvn -f tensquare_common clean install"
    }
    stage('编译，打包微服务工程，上传镜像') {
+       for(int i=0;i<selectedProjectNames.length;i++){
+                 //tensquare_eureka_server@10086
+                 def projectInfo = selectedProjectNames[i];
+                 //当前遍历的项目名称
+                 def currentProjectName = "${projectInfo}".split("@")[0]
+                 //当前遍历的项目端口
+                 def currentProjectPort = "${projectInfo}".split("@")[1]
 
-         sh "mvn -f ${project_name} clean package dockerfile:build"
+                 sh "mvn -f ${currentProjectName} clean package dockerfile:build"
 
-         //定义镜像名称
-         def imageName = "${project_name}:${tag}"
+                 //定义镜像名称
+                 def imageName = "${currentProjectName}:${tag}"
 
-         //对镜像打上标签
-         sh "docker tag ${imageName} ${harbor_url}/${harbor_project}/${imageName}"
+                 //对镜像打上标签
+                 sh "docker tag ${imageName} ${harbor_url}/${harbor_project}/${imageName}"
 
-        //把镜像推送到Harbor
-        withCredentials([usernamePassword(credentialsId: "${harbor_auth}", passwordVariable: 'password', usernameVariable: 'username')]) {
+                //把镜像推送到Harbor
+                withCredentials([usernamePassword(credentialsId: "${harbor_auth}", passwordVariable: 'password', usernameVariable: 'username')]) {
 
-            //登录到Harbor
-            sh "docker login -u ${username} -p ${password} ${harbor_url}"
+                    //登录到Harbor
+                    sh "docker login -u ${username} -p ${password} ${harbor_url}"
 
-            //镜像上传
-            sh "docker push ${harbor_url}/${harbor_project}/${imageName}"
+                    //镜像上传
+                    sh "docker push ${harbor_url}/${harbor_project}/${imageName}"
 
-            sh "echo 镜像上传成功"
+                    sh "echo 镜像上传成功"
+                }
+
+
+                //部署应用
+                //sshPublisher(publishers: [sshPublisherDesc(configName: 'master_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: "/opt/jenkins_shell/deploy.sh $harbor_url $harbor_project $project_name $tag $port", execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+
         }
-
-
-        //部署应用
-        sshPublisher(publishers: [sshPublisherDesc(configName: 'master_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: "/opt/jenkins_shell/deploy.sh $harbor_url $harbor_project $project_name $tag $port", execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
    }
 }
