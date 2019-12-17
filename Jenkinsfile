@@ -30,7 +30,7 @@ node {
    stage('编译，安装公共子工程') {
       sh "mvn -f tensquare_common clean install"
    }
-   stage('编译，打包微服务工程，上传镜像，部署应用') {
+   stage('编译，打包微服务工程，上传镜像') {
 
          sh "mvn -f ${project_name} clean package dockerfile:build"
 
@@ -52,12 +52,8 @@ node {
             sh "echo 镜像上传成功"
         }
 
-        //把本地镜像删除
-        sh "docker rmi ${imageName}"
-        sh "docker rmi ${harbor_url}/${harbor_project}/${imageName}"
 
         //部署应用
         sshPublisher(publishers: [sshPublisherDesc(configName: 'master_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: "/opt/jenkins_shell/deploy.sh $harbor_url $harbor_project $project_name $tag $port", execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
-
    }
 }
