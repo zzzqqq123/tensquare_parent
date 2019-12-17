@@ -12,19 +12,33 @@ def harbor_project = "tensquare"
 def harbor_auth = "833d1a75-f3db-4aec-9cc4-75a77e423163"
 
 node {
+   //获取当前选择的项目名称
+   def selectedProjectNames = "${project_name}".split(",")
+
+
    stage('拉取代码') {
       checkout([$class: 'GitSCM', branches: [[name: "*/${branch}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: "${git_auth}", url: "${git_url}"]]])
    }
    stage('代码审查') {
-        //定义当前Jenkins的SonarQubeScanner工具
-        def scannerHome = tool 'sonar-scanner'
-        //引用当前JenkinsSonarQube环境
-        withSonarQubeEnv('sonarqube') {
-             sh """
-                     cd ${project_name}
-                     ${scannerHome}/bin/sonar-scanner
-             """
+        for(int i=0;i<selectedProjectNames.length;i++){
+            //tensquare_eureka_server@10086
+            def projectInfo = selectedProjectNames[i];
+            //当前遍历的项目名称
+            def currentProjectName = "${projectInfo}".split("@")[0]
+            //当前遍历的项目端口
+            def currentProjectPort = "${projectInfo}".split("@")[1]
+
+            //定义当前Jenkins的SonarQubeScanner工具
+            def scannerHome = tool 'sonar-scanner'
+            //引用当前JenkinsSonarQube环境
+            withSonarQubeEnv('sonarqube') {
+                 sh """
+                         cd ${currentProjectName}
+                         ${scannerHome}/bin/sonar-scanner
+                 """
+            }
         }
+
 
    }
    stage('编译，安装公共子工程') {
