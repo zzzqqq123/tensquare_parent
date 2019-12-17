@@ -76,25 +76,27 @@ node {
                 }
 
 
-                //遍历所有目前的服务器列表
+                //遍历所有服务器列表
                 for(int j=0;j<selectedServers.length;j++){
+                    //获取当前遍历的服务器名称
+                    def currentServerName = selectedServers[i]
 
-                    // 获取当前遍历的服务器名称
-                    def currentServer = selectedServers[i];
+                    //加入的参数格式：--spring.profiles.active=eureka-server1
+                    def activeProfile = "--spring.profiles.active="
 
-                    //选择需要的读取的Eureka配置
-                    def activeProfile = "--spring.profiles.active=";
-
-                    //根据服务器的名称选择不同的配置
-                    if(currentServer=="master_server"){
-                       activeProfile = activeProfile+"eureka-server1"
-                    }else if(currentServer=="slave_server"){
-                       activeProfile = activeProfile+"eureka-server2"
+                    if(currentServerName=="master_server"){
+                        activeProfile=activeProfile+"eureka-server1"
+                    }else if(currentServerName=="slave_server"){
+                        activeProfile=activeProfile+"eureka-server2"
                     }
+
 
                     //部署应用
                     sshPublisher(publishers: [sshPublisherDesc(configName: 'master_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: "/opt/jenkins_shell/deployCluster.sh $harbor_url $harbor_project $currentProjectName $tag $currentProjectPort $activeProfile", execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+
                 }
+
+
         }
    }
 }
