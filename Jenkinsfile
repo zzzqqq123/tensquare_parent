@@ -25,6 +25,6 @@ node {
    }
    stage('编译，打包微服务工程') {
 
-         sh "mvn -f ${project_name} clean package"
+         sh "mvn -f ${project_name} clean package dockerfile:build"
    }
 }
