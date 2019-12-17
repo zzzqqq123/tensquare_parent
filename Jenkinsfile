@@ -20,4 +20,7 @@ node {
         }
 
    }
+   stage('公共工程的安装') {
+        sh "mvn -f tensquare_common clean install"
+   }
 }
