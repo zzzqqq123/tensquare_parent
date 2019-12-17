@@ -14,9 +14,8 @@ def harbor_auth = "833d1a75-f3db-4aec-9cc4-75a77e423163"
 node {
    //获取当前选择的项目名称
    def selectedProjectNames = "${project_name}".split(",")
-   //获取当前选择的服务器列表
+   //获取当前选择的服务器名称
    def selectedServers = "${publish_server}".split(",")
-
 
    stage('拉取代码') {
       checkout([$class: 'GitSCM', branches: [[name: "*/${branch}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: "${git_auth}", url: "${git_url}"]]])
@@ -75,27 +74,26 @@ node {
                     sh "echo 镜像上传成功"
                 }
 
-
-                //遍历所有服务器列表
+                //遍历所有服务器，分别部署
                 for(int j=0;j<selectedServers.length;j++){
-                    //获取当前遍历的服务器名称
-                    def currentServerName = selectedServers[j]
+                       //获取当前遍历的服务器名称
+                       def currentServerName = selectedServers[j]
 
-                    //加入的参数格式：--spring.profiles.active=eureka-server1
-                    def activeProfile = "--spring.profiles.active="
+                       //加上的参数格式：--spring.profiles.active=eureka-server1/eureka-server2
+                       def activeProfile = "--spring.profiles.active="
 
-                    if(currentServerName=="master_server"){
-                        activeProfile=activeProfile+"eureka-server1"
-                    }else if(currentServerName=="slave_server"){
-                        activeProfile=activeProfile+"eureka-server2"
-                    }
+                       //根据不同的服务名称来读取不同的Eureka配置信息
+                       if(currentServerName=="master_server"){
+                          activeProfile = activeProfile+"eureka-server1"
+                       }else if(currentServerName=="slave_server"){
+                          activeProfile = activeProfile+"eureka-server2"
+                       }
 
+                       //部署应用
+                       sshPublisher(publishers: [sshPublisherDesc(configName: "${currentServerName}", transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: "/opt/jenkins_shell/deployCluster.sh $harbor_url $harbor_project $currentProjectName $tag $currentProjectPort $activeProfile", execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
 
-                    //部署应用
-                    sshPublisher(publishers: [sshPublisherDesc(configName: "${currentServerName}", transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: "/opt/jenkins_shell/deployCluster.sh $harbor_url $harbor_project $currentProjectName $tag $currentProjectPort $activeProfile", execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
 
                 }
-
 
         }
    }
