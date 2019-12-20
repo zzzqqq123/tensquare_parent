@@ -1,31 +1,24 @@
-# 集群版
+server:
+  port: ${PORT:10086}
 spring:
   application:
-    name: EUREKA-HA
+    name: eureka
 
----
-server:
-  port: 10086
-spring:
-  # 指定profile=eureka-server1
-  profiles: eureka-server1
 eureka:
-  instance:
-    # 指定当profile=eureka-server1时，主机名是eureka-server1
-    hostname: 192.168.66.103
+  server:
+    # 续期时间，即扫描失效服务的间隔时间（缺省为60*1000ms）
+    eviction-interval-timer-in-ms: 5000
+    enable-self-preservation: false
+    use-read-only-response-cache: false
   client:
-    service-url:
-     # 将自己注册到eureka-server1、eureka-server2这个Eureka上面去
-      defaultZone: http://192.168.66.103:10086/eureka/,http://192.168.66.104:10086/eureka/
-
----
-server:
-  port: 10086
-spring:
-  profiles: eureka-server2
-eureka:
+    # eureka client间隔多久去拉取服务注册信息 默认30s
+    registry-fetch-interval-seconds: 5
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER:http://127.0.0.1:${server.port}/eureka/}
   instance:
-    hostname: 192.168.66.104
-  client:
-    service-url:
-      defaultZone: http://192.168.66.103:10086/eureka/,http://192.168.66.104:10086/eureka/
+    # 心跳间隔时间，即发送一次心跳之后，多久在发起下一次（缺省为30s）
+    lease-renewal-interval-in-seconds: 5
+    # 在收到一次心跳之后，等待下一次心跳的空档时间，大于心跳间隔即可，即服务续约到期时间（缺省为90s）
+    lease-expiration-duration-in-seconds: 10
+    instance-id: ${EUREKA_INSTANCE_HOSTNAME:${spring.application.name}}:${server.port}@${random.long(1000000,9999999)}
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:${spring.application.name}}
