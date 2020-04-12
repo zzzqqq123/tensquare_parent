@@ -6,8 +6,16 @@
         <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/tensquare_common/pom.xml" />
+        <option value="$PROJECT_DIR$/tensquare_eureka_server/pom.xml" />
+        <option value="$PROJECT_DIR$/tensquare_gathering/pom.xml" />
+        <option value="$PROJECT_DIR$/tensquare_zuul/pom.xml" />
+      </set>
+    </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="8.0" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>
