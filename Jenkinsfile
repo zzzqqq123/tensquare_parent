@@ -1,15 +1,15 @@
 //git凭证ID
-def git_auth = "b632ed00-fc81-43c8-a746-5aa0673b2658"
+def git_auth = "854900d0-f430-4ac7-9034-4e949d986bd0"
 //git的url地址
-def git_url = "git@192.168.66.100:itheima_group/tensquare_back.git"
+def git_url = "https://github.com/zzzqqq123/tensquare_parent.git"
 //镜像的版本号
 def tag = "latest"
 //Harbor的url地址
-def harbor_url = "192.168.66.102:85"
+def harbor_url = "192.168.206.133:85"
 //镜像库项目名称
 def harbor_project = "tensquare"
 //Harbor的登录凭证ID
-def harbor_auth = "833d1a75-f3db-4aec-9cc4-75a77e423163"
+def harbor_auth = "24dd69be-31b0-4aed-8d81-ea41ac715b18"
 
 node {
    //获取当前选择的项目名称
